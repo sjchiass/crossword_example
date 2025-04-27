@@ -1,0 +1,656 @@
+<!-- Derived from https://codepen.io/adrianroworth/pen/OpeyZq -->
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+
+    .crossword-board-container {
+      position: relative;
+    }
+
+    .crossword-board > img {
+      width: 900px;
+      height: 600px;
+      object-fit: cover;
+    }
+
+    .crossword-board {
+      position: absolute;
+      z-index: 1;
+      width: 900px;
+      background: transparent;
+      display: grid;
+      grid-template-columns: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px ;
+      grid-template-rows: 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px 50px ;
+      border: 1px solid #000000;
+    }
+
+    .crossword-board__item {
+      color: #000;
+      padding: 5px;
+      font-size: 20px;
+      text-align: center;
+      border: 1px solid #000000;
+      position: relative;
+      text-transform: uppercase;
+      z-index: 100;
+      background: transparent;
+    }
+
+    .crossword-board__item.final-cell {
+      background: orange;
+    }
+
+    .blocked {
+      background: transparent;
+    }
+
+    .crossword-board__item.blank {
+      background: white;
+      opacity: 80%;
+    }
+
+    .crossword-board--labels {
+      position: absolute;
+      z-index: 60;
+    }
+
+    .crossword-board__item-label {
+      position: relative;
+      background: white;
+      opacity: 80%;
+    }
+
+    .crossword-board__item-label-text {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    /* The cell numberings use CSS grid positioning https://cssgridgarden.com/ */
+    .crossword-board__item-label--1 {
+      grid-column: 1/1;
+      grid-row: 1/1;
+    }
+
+    .crossword-board__item-label--2 {
+      grid-column: 11/11;
+      grid-row: 1/1;
+    }
+
+    .crossword-board__item-label--3 {
+      grid-column: 15/15;
+      grid-row: 1/1;
+    }
+
+    .crossword-board__item-label--4 {
+      grid-column: 17/17;
+      grid-row: 1/1;
+    }
+
+    .crossword-board__item-label--5 {
+      grid-column: 14/14;
+      grid-row: 2/2;
+    }
+
+    .crossword-board__item-label--6 {
+      grid-column: 7/7;
+      grid-row: 3/3;
+    }
+
+    .crossword-board__item-label--7 {
+      grid-column: 8/8;
+      grid-row: 3/3;
+    }
+
+    .crossword-board__item-label--8 {
+      grid-column: 3/3;
+      grid-row: 4/4;
+    }
+
+    .crossword-board__item-label--9 {
+      grid-column: 5/5;
+      grid-row: 4/4;
+    }
+
+    .crossword-board__item-label--10 {
+      grid-column: 13/13;
+      grid-row: 5/5;
+    }
+
+    .crossword-board__item-label--11 {
+      grid-column: 4/4;
+      grid-row: 6/6;
+    }
+
+    .crossword-board__item-label--12 {
+      grid-column: 1/1;
+      grid-row: 7/7;
+    }
+
+    .crossword-board__item-label--13 {
+      grid-column: 11/11;
+      grid-row: 7/7;
+    }
+
+    .crossword-board__item-label--14 {
+      grid-column: 4/4;
+      grid-row: 8/8;
+    }
+
+    .crossword-board__item-label--15 {
+      grid-column: 18/18;
+      grid-row: 8/8;
+    }
+
+    .crossword-board__item-label--16 {
+      grid-column: 12/12;
+      grid-row: 9/9;
+    }
+
+    .crossword-board__item-label--17 {
+      grid-column: 1/1;
+      grid-row: 10/10;
+    }
+
+    .crossword-board__item-label--18 {
+      grid-column: 2/2;
+      grid-row: 12/12;
+    }
+
+    .crossword-board__item-label--19 {
+      grid-column: 15/15;
+      grid-row: 12/12;
+    }
+
+    
+
+    .crossword-clues {
+      padding: 20px;
+      position: absolute;
+      /* Offset clues downwards */
+      top: 600px;
+    }
+
+    .crossword-clues-column {
+      vertical-align: top;
+      padding: 10px;
+      white-space: pre-line;
+    }
+
+    .direction-header {
+      font-weight: bold;
+      font-size: 125%;
+      padding: 25px 0px 5px 5px;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="crossword-board-container">
+    <div class="crossword-board">
+      <img src="tidy_pugs_A.jpg">
+      <div class="crossword-board">
+        
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item final-cell" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item final-cell" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item final-cell" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item final-cell" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <span class="blocked"></span>
+        <input
+          class="crossword-board__item" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <input
+          class="crossword-board__item blank" minlength="1" maxlength="1" value="">
+        <!-- Overlay for numbering cells for the clues -->
+        <div class="crossword-board crossword-board--labels">
+          <span
+            class="crossword-board__item-label crossword-board__item-label--1"><span
+              class="crossword-board__item-label-text">1</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--2"><span
+              class="crossword-board__item-label-text">2</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--3"><span
+              class="crossword-board__item-label-text">3</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--4"><span
+              class="crossword-board__item-label-text">4</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--5"><span
+              class="crossword-board__item-label-text">5</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--6"><span
+              class="crossword-board__item-label-text">6</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--7"><span
+              class="crossword-board__item-label-text">7</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--8"><span
+              class="crossword-board__item-label-text">8</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--9"><span
+              class="crossword-board__item-label-text">9</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--10"><span
+              class="crossword-board__item-label-text">10</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--11"><span
+              class="crossword-board__item-label-text">11</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--12"><span
+              class="crossword-board__item-label-text">12</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--13"><span
+              class="crossword-board__item-label-text">13</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--14"><span
+              class="crossword-board__item-label-text">14</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--15"><span
+              class="crossword-board__item-label-text">15</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--16"><span
+              class="crossword-board__item-label-text">16</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--17"><span
+              class="crossword-board__item-label-text">17</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--18"><span
+              class="crossword-board__item-label-text">18</span></span>
+          <span
+            class="crossword-board__item-label crossword-board__item-label--19"><span
+              class="crossword-board__item-label-text">19</span></span>
+          
+        </div>
+
+        <!-- Clues -->
+        <div class="crossword-board">
+          <table class="crossword-clues">
+            <tr>
+              <td class="crossword-clues-column">Tidyverse! It&#39;s a collection of R packages that changes how you work with data in R. The crossword is made up of package and function names from Tidyverse. Answers are case-insensitive but can include numbers and underscores _. Final answer hint (orange cells): start here.
+                <div class="direction-header">Across</div>
+                <label><input type="checkbox">1) A minimalistic theme with no background annotations. (function)</label>
+                <label><input type="checkbox">3) Make your own command line interface. (package)</label>
+                <label><input type="checkbox">6) Combine strings together. (function)</label>
+                <label><input type="checkbox">8) Wrangle your XML data. (package)</label>
+                <label><input type="checkbox">10) Makes working with time durations a breeze. (package)</label>
+                <label><input type="checkbox">11) Lets you query databases like data frames. (package)</label>
+                <label><input type="checkbox">12) Helps connect to databases. (package)</label>
+                <label><input type="checkbox">13) Write a tibble by hand. (function)</label>
+                <label><input type="checkbox">14) Keep only rows that meet a condition. (function)</label>
+                <label><input type="checkbox">16) Sort rows by one or more variables. (function)</label>
+                <label><input type="checkbox">17) Create summary statistics per group. (function)</label>
+                <label><input type="checkbox">18) Pick columns from a dataframe. (function)</label>
+                <label><input type="checkbox">19) Lets you send HTTP requests from R. (package)</label>
+                <div class="direction-header">Down</div>
+                <label><input type="checkbox">1) Elegant model pipelines. (package)</label>
+                <label><input type="checkbox">2) Lets you chain operations like magic (mais n&#39;est pas une pipe). (package)</label>
+                <label><input type="checkbox">4) Conditional calculation. (function)</label>
+                <label><input type="checkbox">5) Bar chart. (fonction)</label>
+                <label><input type="checkbox">7) A collection of packages for data wrangling and analysis.</label>
+                <label><input type="checkbox">9) Tames dates and times. (package)</label>
+                <label><input type="checkbox">15) Handles data imports like a champ. (package)</label>
+                <label><input type="checkbox">16) Specify aesthetics for plots. (function)</label>
+              </td>
+              <td class="crossword-clues-column">Tidyverse! Il s&#39;agit d&#39;une collection de packages R qui modifie la façon dont vous travaillez avec les données dans R. Le mot croisé est composé de noms de paquets et de fonctions de Tidyverse. Les réponses ne sont pas sensibles à la casse, mais peuvent comprendre des chiffres et des traits de soulignement _. Indice de réponse finale (cellules oranges) : commencez ici.
+                <div class="direction-header">Horizontal</div>
+                <label><input type="checkbox">1) Un thème minimaliste sans annotations d&#39;arrière-plan. (fonction)</label>
+                <label><input type="checkbox">3) Créez votre propre interface en ligne de commande. (paquet)</label>
+                <label><input type="checkbox">6) Assembler des chaînes de caractères. (fonction)</label>
+                <label><input type="checkbox">8) Organisez vos données XML. (paquet)</label>
+                <label><input type="checkbox">10) Simplifie le travail avec les durées de temps. (paquet)</label>
+                <label><input type="checkbox">11) Permet d&#39;interroger les bases de données comme des data frames. (paquet)</label>
+                <label><input type="checkbox">12) Aide à se connecter aux bases de données. (paquet)</label>
+                <label><input type="checkbox">13) Écrivez un tibble à la main. (fonction)</label>
+                <label><input type="checkbox">14) Conserver uniquement les lignes qui répondent à une condition. (fonction)</label>
+                <label><input type="checkbox">16) Trier les lignes par une ou plusieurs variables. (fonction)</label>
+                <label><input type="checkbox">17) Créer des statistiques résumatives par groupe. (fonction)</label>
+                <label><input type="checkbox">18) Choisir des colonnes dans un DataFrame. (fonction)</label>
+                <label><input type="checkbox">19) Permet d&#39;envoyer des requêtes HTTP depuis R. (paquet)</label>
+                <div class="direction-header">Vertical</div>
+                <label><input type="checkbox">1) Pipelines de modèles élégants. (paquet)</label>
+                <label><input type="checkbox">2) Permet de chaîner des opérations comme par magie (mais n&#39;est pas une pipe). (paquet)</label>
+                <label><input type="checkbox">4) Calcul conditionnelle. (fonction)</label>
+                <label><input type="checkbox">5) Graphique à barres. (function)</label>
+                <label><input type="checkbox">7) Une collection de paquets pour la manipulation et l&#39;analyse de données.</label>
+                <label><input type="checkbox">9) Dompte les dates et heures. (paquet)</label>
+                <label><input type="checkbox">15) Gère les importations de données comme un champion. (paquet)</label>
+                <label><input type="checkbox">16) Spécifier l&#39;esthétique des graphiques. (fonction)</label>
+              </td>
+            </tr>
+          </table>
+          
+        </div>
+      </div>
+    </div>
+
+</body>
+
+</html>
